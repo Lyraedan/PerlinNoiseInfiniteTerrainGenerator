@@ -440,6 +440,7 @@ MonoBehaviour:
   chunkPrefab: {fileID: 575949650738310728, guid: e8c961b19daae544f8238a943d8f38fb,
     type: 3}
   seed: 0
+  offset: {x: 0, y: 0, z: 0}
 --- !u!4 &2034556924
 Transform:
   m_ObjectHideFlags: 0

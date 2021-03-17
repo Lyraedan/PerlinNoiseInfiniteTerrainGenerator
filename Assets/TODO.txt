@@ -1,0 +1,7 @@
+Generate mesh without spawning in prefabs
+
+Cut around the terrain with the water for optimization
+
+Maybe some trees
+
+Cut out mesh colliders and calculate the camera height based on the terrain

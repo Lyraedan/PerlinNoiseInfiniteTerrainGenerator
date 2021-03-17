@@ -110,6 +110,16 @@ public class Water : MonoBehaviour
                         {
                             //Remove here
                             //plane.vertices.RemoveAt(i);
+                            // Update triangles
+                            //0, 2, 1, 2, 3, 1
+
+
+                            //I need to sit down and carefully thing about this
+                            int[] newTris = new int[6] {
+                                0, 2, 1, 2, 3, 1
+                            };
+                            
+                            //plane.indices = newTris;
                         }
                     }
                 }
