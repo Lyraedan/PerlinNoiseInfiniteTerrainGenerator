@@ -28,18 +28,18 @@ public class Player : MonoBehaviour
     /// </summary>
     public void GenerateChunkIfWeNeedTo()
     {
-        for (float x = transform.position.x - (viewSize * MeshPlane.tileSize.x * Chunk.width); x <= transform.position.x + (viewSize * MeshPlane.tileSize.x * Chunk.width); x++)
+        float camX = ChunkX();
+        float camZ = ChunkZ();
+        for (float x = camX - viewSize; x <= camX + viewSize; x++)
         {
-            for (float z = transform.position.z - (viewSize * MeshPlane.tileSize.z * Chunk.length); z <= transform.position.z + (viewSize * MeshPlane.tileSize.z * Chunk.length); z++)
+            for (float z = camZ - viewSize; z <= camZ + viewSize; z++)
             {
-                int chunkX = (int)(Mathf.Floor((x / Chunk.width) / Chunk.width));
-                int chunkZ = (int)(Mathf.Floor((z / Chunk.length) / Chunk.length));
-                if (!World.instance.ChunkExists(chunkX, chunkZ))
+                if (!World.instance.ChunkExists(x, z))
                 {
-                    World.instance.Generate(chunkX, chunkZ);
+                    World.instance.Generate(x, z);
                 } else
                 {
-                    World.instance.GetChunkAt(chunkX, chunkZ).RenderChunk(true);
+                    World.instance.GetChunkAt(x, z).RenderChunk(true);
                 }
             }
         }

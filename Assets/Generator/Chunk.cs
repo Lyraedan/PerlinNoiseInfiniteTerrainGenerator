@@ -26,6 +26,7 @@ public class Chunk : MonoBehaviour
     private bool heightGenerated = false, builtTerrain = false, combinedMesh = false;
 
     private MeshFilter filter;
+    private new MeshRenderer renderer;
 
     // Start is called before the first frame update
     void Start()
@@ -43,7 +44,8 @@ public class Chunk : MonoBehaviour
     public void RenderChunk(bool state)
     {
         gameObject.name = World.instance.GetChunkKey(offsetX, offsetZ) + $" <{state}>";
-        gameObject.SetActive(state);
+        if (renderer)
+            renderer.enabled = state;
     }
 
     public void GenerateTerrain()
@@ -146,7 +148,7 @@ public class Chunk : MonoBehaviour
         filter.mesh = new Mesh();
         filter.mesh.CombineMeshes(combine);
 
-        MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
+        renderer = gameObject.GetComponent<MeshRenderer>();
         renderer.sharedMaterial = new Material(Shader.Find("Standard"));
 
         transform.gameObject.SetActive(true);
