@@ -19,23 +19,15 @@ public class World : MonoBehaviour
             Destroy(this);
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         if (seed == 0)
             seed = Random.Range(-10000, 10000);
-
-        /*
-        for(int x = 0; x < 3; x++)
-        {
-            for(int z = 0; z < 3; z++)
-            {
-                Generate(x, z);
-            }
-        }
-        */
     }
 
+    /// <summary>
+    /// Loop through any active chunks and if they are out of range disable them
+    /// </summary>
     public void HideChunks()
     {
         foreach(Chunk chunk in chunks.Values)
@@ -45,6 +37,11 @@ public class World : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Generate a chunk at the given coordinates
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
     public void Generate(float x, float z)
     {
         string key = GetChunkKey(x, z);
@@ -60,6 +57,11 @@ public class World : MonoBehaviour
         chunks.Add(key, chunk);
     }
 
+    /// <summary>
+    /// Generate an empy chunk (null) at the given coordinates - Useful for testing and debugging memory leaks
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
     public void GenerateEmpty(float x, float z)
     {
         string key = GetChunkKey(x, z);
@@ -67,11 +69,22 @@ public class World : MonoBehaviour
         chunks.Add(key, null);
     }
 
+    /// <summary>
+    /// Does a chunk exist at the given x and z value
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
     public bool ChunkExists(float x, float z)
     {
         return chunks.ContainsKey(GetChunkKey(x, z));
     }
 
+    /// <summary>
+    /// Get the instance of the chunk at a given x, z coordinate
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
+    /// <returns></returns>. If none exist. Generate it
     public Chunk GetChunkAt(float x, float z)
     {
         string key = GetChunkKey(x, z);
@@ -80,6 +93,12 @@ public class World : MonoBehaviour
         return chunks[key];
     }
 
+    /// <summary>
+    /// Get the key that is used in the dictionary for the chunks
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
+    /// <returns></returns>
     public string GetChunkKey(float x, float z)
     {
         return $"Chunk_{x}_{z}";

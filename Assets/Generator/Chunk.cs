@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
+/*
+ 
+    Author: Zel
+     
+ */
 public class Chunk : MonoBehaviour
 {
 
@@ -28,12 +33,11 @@ public class Chunk : MonoBehaviour
     private MeshFilter filter;
     private new MeshRenderer renderer;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        GenerateTerrain();
-    }
-
+    /// <summary>
+    /// What is the XZ offset for this chunk?
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
     public void SetOffset(float x, float z)
     {
         this.offsetX = x;
@@ -41,6 +45,10 @@ public class Chunk : MonoBehaviour
         transform.position = new Vector3(x, 0, z);
     }
 
+    /// <summary>
+    /// Do we want the Renderer to be enabled for this chunk?
+    /// </summary>
+    /// <param name="state"></param>
     public void RenderChunk(bool state)
     {
         gameObject.name = World.instance.GetChunkKey(offsetX, offsetZ) + $" <{state}>";
@@ -48,6 +56,9 @@ public class Chunk : MonoBehaviour
             renderer.enabled = state;
     }
 
+    /// <summary>
+    /// Generate our terrain
+    /// </summary>
     public void GenerateTerrain()
     {
         GenerateFlatMesh();
@@ -55,6 +66,9 @@ public class Chunk : MonoBehaviour
         StartCoroutine(GenerateHeightmap());
     }
 
+    /// <summary>
+    /// Generate a flat mesh for our chunk ready to be modified
+    /// </summary>
     void GenerateFlatMesh()
     {
         for(int x = 0; x < width; x++)
@@ -74,6 +88,10 @@ public class Chunk : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Generate the heightmap, combine meshes, generate colliders and cleanup our terrain
+    /// </summary>
+    /// <returns></returns>
     IEnumerator GenerateHeightmap()
     {
         ThreadPool.QueueUserWorkItem(ApplyPerlin);
@@ -95,6 +113,10 @@ public class Chunk : MonoBehaviour
         Cleanup();
     }
 
+    /// <summary>
+    /// Add the perlin noise heightmap to our terrain
+    /// </summary>
+    /// <param name="state"></param>
     void ApplyPerlin(object state)
     {
         foreach(MeshPlane plane in mesh)
@@ -122,11 +144,13 @@ public class Chunk : MonoBehaviour
                     }
                 }
             }
-            //plane.BuildMesh();
             heightGenerated = true;
         }
     }
 
+    /// <summary>
+    /// Combnie all the mesh object meshes into one master mesh and apply that to the chunk gameobject
+    /// </summary>
     void CombineMeshes()
     {
         List<MeshFilter> filters = new List<MeshFilter>();
@@ -141,7 +165,6 @@ public class Chunk : MonoBehaviour
         {
             combine[i].mesh = filters[i].sharedMesh;
             combine[i].transform = filters[i].transform.worldToLocalMatrix;
-            //filters[i].gameObject.SetActive(false);
             i++;
         }
         filter = gameObject.GetComponent<MeshFilter>();
@@ -155,12 +178,18 @@ public class Chunk : MonoBehaviour
         combinedMesh = true;
     }
 
+    /// <summary>
+    /// Make our terrain solid by adding mesh colliders
+    /// </summary>
     void GenerateColliders()
     {
         MeshCollider collider = gameObject.AddComponent<MeshCollider>();
         collider.sharedMesh = filter.mesh;
     }
 
+    /// <summary>
+    /// Remove all the mesh game objects as they are no longer needed
+    /// </summary>
     void Cleanup()
     {
         foreach (Transform child in transform)

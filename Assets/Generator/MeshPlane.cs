@@ -4,13 +4,9 @@ using UnityEngine;
 
 /// <summary>
 /// Author: Zel
-/// Date: 14/03/2021
 /// </summary>
 public class MeshPlane : MonoBehaviour
 {
-    /// <summary>
-    /// The mesh xyz
-    /// </summary>
     public float x, z;
 
     public static Vector3 tileSize = new Vector3(10, 0, 10);
@@ -24,12 +20,20 @@ public class MeshPlane : MonoBehaviour
     private new MeshRenderer renderer;
     public MeshFilter filter;
 
+    /// <summary>
+    /// Where is this mesh plane located?
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
     public void SetPosition(float x, float z)
     {
         this.x = x;
         this.z = z;
     }
 
+    /// <summary>
+    /// Build the structure for the mesh, vertices, uvs, normals, indices
+    /// </summary>
     public void Build()
     {
         vertices[0] = new Vector3(x, 0, z);
@@ -60,6 +64,9 @@ public class MeshPlane : MonoBehaviour
         };
     }
     
+    /// <summary>
+    /// Colour our mesh based on its vertices height
+    /// </summary>
     public void ColourMesh()
     {
         float v0 = Mathf.Lerp(vertices[0].x / Chunk.width, vertices[0].y, vertices[0].z / Chunk.length);
@@ -85,6 +92,9 @@ public class MeshPlane : MonoBehaviour
         //renderer.material.color = meshColor;
     }
 
+    /// <summary>
+    /// Build the mesh object and apply it to the mesh filter
+    /// </summary>
     public void BuildMesh()
     {
         mesh = new Mesh();
@@ -95,6 +105,9 @@ public class MeshPlane : MonoBehaviour
         filter.mesh = mesh;
     }
 
+    /// <summary>
+    /// Prep our mesh plane with everything it needs for untiy to display it
+    /// </summary>
     public void SetupMesh()
     {
         renderer = gameObject.AddComponent<MeshRenderer>();
