@@ -17,13 +17,12 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
         if (Vector3.Distance(lastPos, transform.position) < 1f) return;
         lastPos = transform.position;
         World.instance.HideChunks();
         GenerateChunkIfWeNeedTo();
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Application.Quit();
     }
 
     /// <summary>

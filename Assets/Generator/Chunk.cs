@@ -23,6 +23,7 @@ public class Chunk : MonoBehaviour
     public double persistance = 2; // 3
     public double frequancy = 1;
     public double noiseAmplitude = 1;
+    public Vector2 clamp = new Vector2(0, 10);
     [Space(5)]
     public float offsetX = 0, offsetZ = 0;
 
@@ -71,9 +72,9 @@ public class Chunk : MonoBehaviour
     /// </summary>
     void GenerateFlatMesh()
     {
-        for(int x = 0; x < width; x++)
+        for (int x = 0; x < width; x++)
         {
-            for(int z = 0; z < length; z++)
+            for (int z = 0; z < length; z++)
             {
                 GameObject obj = Instantiate(meshPlanePrefab, transform);
                 MeshPlane plane = obj.GetComponent<MeshPlane>();
@@ -119,28 +120,32 @@ public class Chunk : MonoBehaviour
     /// <param name="state"></param>
     void ApplyPerlin(object state)
     {
-        foreach(MeshPlane plane in mesh)
+        foreach (MeshPlane plane in mesh)
         {
-            for(int x = 0; x < width; x++)
+            for (int x = 0; x < width; x++)
             {
-                for(int z = 0; z < length; z++)
+                for (int z = 0; z < length; z++)
                 {
                     for (int i = 0; i < plane.vertices.Length; i++)
                     {
                         float perlinX = plane.vertices[i].x + (x * MeshPlane.tileSize.x) / width * amplitude;
                         float perlinZ = plane.vertices[i].z + (z * MeshPlane.tileSize.z) / length * amplitude;
 
-                        /*float noise = (float)PerlinNoise.perlin(perlinX + World.instance.seed,
+                        /*
+                        float noise = (float)PerlinNoise.perlin(perlinX + World.instance.seed,
                                                                 plane.vertices[i].y + World.instance.seed,
-                                                                perlinZ + World.instance.seed);*/
+                                                                perlinZ + World.instance.seed);
+                                                                */
                         float noise = (float)PerlinNoise.OctavePerlin(perlinX + World.instance.seed,
-                                                                      plane.vertices[i].y + World.instance.seed,
-                                                                      perlinZ + World.instance.seed,
-                                                                      octaves,
-                                                                      persistance,
-                                                                      frequancy,
-                                                                      noiseAmplitude);
-                        plane.vertices[i].y = noise;
+                                                      plane.vertices[i].y + World.instance.seed,
+                                                      perlinZ + World.instance.seed,
+                                                      octaves,
+                                                      persistance,
+                                                      frequancy,
+                                                      noiseAmplitude);
+
+                        plane.vertices[i].y = Mathf.Clamp(noise, clamp.x, clamp.y);
+                        Debug.Log("Noise: " + noise);
                     }
                 }
             }

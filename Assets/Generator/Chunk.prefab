@@ -52,6 +52,7 @@ MonoBehaviour:
   persistance: 4
   frequancy: 0.2
   noiseAmplitude: 1
+  clamp: {x: 0, y: 12}
   offsetX: 0
   offsetZ: 0
   mod: 1.5
