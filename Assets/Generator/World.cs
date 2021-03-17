@@ -25,12 +25,23 @@ public class World : MonoBehaviour
         if (seed == 0)
             seed = Random.Range(-10000, 10000);
 
+        /*
         for(int x = 0; x < 3; x++)
         {
             for(int z = 0; z < 3; z++)
             {
                 Generate(x, z);
             }
+        }
+        */
+    }
+
+    public void HideChunks()
+    {
+        foreach(Chunk chunk in chunks.Values)
+        {
+            if(chunk.gameObject.activeSelf)
+                chunk.RenderChunk(false);
         }
     }
 
@@ -47,6 +58,13 @@ public class World : MonoBehaviour
         chunk.GenerateTerrain();
         
         chunks.Add(key, chunk);
+    }
+
+    public void GenerateEmpty(float x, float z)
+    {
+        string key = GetChunkKey(x, z);
+        if (chunks.ContainsKey(key)) return;
+        chunks.Add(key, null);
     }
 
     public bool ChunkExists(float x, float z)

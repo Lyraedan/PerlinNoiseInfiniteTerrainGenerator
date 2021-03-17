@@ -22,7 +22,7 @@ public class MeshPlane : MonoBehaviour
 
     private Mesh mesh;
     private new MeshRenderer renderer;
-    private MeshFilter filter;
+    public MeshFilter filter;
 
     public void SetPosition(float x, float z)
     {
@@ -83,7 +83,6 @@ public class MeshPlane : MonoBehaviour
 
             */
         //renderer.material.color = meshColor;
-        gameObject.name += "_interpolation:" + interpolation;
     }
 
     public void BuildMesh()

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,15 +8,45 @@ public class Player : MonoBehaviour
 
     private Vector3 lastPos;
 
+    public float viewSize = 2;
+
     void Update()
     {
         if (Vector3.Distance(lastPos, transform.position) < 1f) return;
         lastPos = transform.position;
-        GenerateChunksAroundMe();
-        MakeChunksAroundMeVisible();
-        HideOutOfViewChunks();
+        World.instance.HideChunks();
+        GenerateChunkIfWeNeedTo();
+        //GenerateChunksAroundMe();
+        //MakeChunksAroundMeVisible();
+        //HideOutOfViewChunks();
+
+        //transform.Translate(transform.position.x + 0.0001f, transform.position.y, transform.position.z + 0.0001f);
     }
 
+    /// <summary>
+    /// Revamp
+    /// </summary>
+    public void GenerateChunkIfWeNeedTo()
+    {
+        for (float x = transform.position.x - (viewSize * MeshPlane.tileSize.x * Chunk.width); x <= transform.position.x + (viewSize * MeshPlane.tileSize.x * Chunk.width); x++)
+        {
+            for (float z = transform.position.z - (viewSize * MeshPlane.tileSize.z * Chunk.length); z <= transform.position.z + (viewSize * MeshPlane.tileSize.z * Chunk.length); z++)
+            {
+                int chunkX = (int)(Mathf.Floor((x / Chunk.width) / Chunk.width));
+                int chunkZ = (int)(Mathf.Floor((z / Chunk.length) / Chunk.length));
+                if (!World.instance.ChunkExists(chunkX, chunkZ))
+                {
+                    World.instance.Generate(chunkX, chunkZ);
+                } else
+                {
+                    World.instance.GetChunkAt(chunkX, chunkZ).RenderChunk(true);
+                }
+            }
+        }
+    }
+
+    #region Obsolete
+    [Obsolete]
     public void MakeChunksAroundMeVisible()
     {
         float x = ChunkX();
@@ -38,9 +69,7 @@ public class Player : MonoBehaviour
 
     }
 
-    /// <summary>
-    /// Memory leak
-    /// </summary>
+    [Obsolete]
     public void GenerateChunksAroundMe()
     {
         float x = ChunkX();
@@ -63,6 +92,7 @@ public class Player : MonoBehaviour
 
     }
 
+    [Obsolete]
     public void HideOutOfViewChunks()
     {
         float x = ChunkX();
@@ -95,6 +125,7 @@ public class Player : MonoBehaviour
         World.instance.GetChunkAt(x + 2, z - 2).RenderChunk(false);
 
     }
+    #endregion
 
     public float ChunkX()
     {

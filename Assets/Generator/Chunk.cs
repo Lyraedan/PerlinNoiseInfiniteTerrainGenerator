@@ -23,7 +23,9 @@ public class Chunk : MonoBehaviour
 
     public float mod = 1f;
 
-    private bool heightGenerated = false;
+    private bool heightGenerated = false, builtTerrain = false, combinedMesh = false;
+
+    private MeshFilter filter;
 
     // Start is called before the first frame update
     void Start()
@@ -35,15 +37,13 @@ public class Chunk : MonoBehaviour
     {
         this.offsetX = x;
         this.offsetZ = z;
+        transform.position = new Vector3(x, 0, z);
     }
 
     public void RenderChunk(bool state)
     {
         gameObject.name = World.instance.GetChunkKey(offsetX, offsetZ) + $" <{state}>";
-        foreach(MeshPlane plane in mesh)
-        {
-            plane.gameObject.SetActive(state);
-        }
+        gameObject.SetActive(state);
     }
 
     public void GenerateTerrain()
@@ -75,12 +75,22 @@ public class Chunk : MonoBehaviour
     IEnumerator GenerateHeightmap()
     {
         ThreadPool.QueueUserWorkItem(ApplyPerlin);
-        while (!heightGenerated) yield return null;
-        foreach(MeshPlane plane in mesh)
+        //while (!heightGenerated) yield return null;
+        yield return new WaitUntil(() => heightGenerated);
+        for (int i = 0; i < mesh.Count; i++)
         {
+            MeshPlane plane = mesh[i];
             plane.ColourMesh();
             plane.BuildMesh();
+
+            if (i >= mesh.Count - 1)
+                builtTerrain = true;
         }
+        yield return new WaitUntil(() => builtTerrain);
+        CombineMeshes();
+        yield return new WaitUntil(() => combinedMesh);
+        GenerateColliders();
+        Cleanup();
     }
 
     void ApplyPerlin(object state)
@@ -113,5 +123,48 @@ public class Chunk : MonoBehaviour
             //plane.BuildMesh();
             heightGenerated = true;
         }
+    }
+
+    void CombineMeshes()
+    {
+        List<MeshFilter> filters = new List<MeshFilter>();
+        foreach (MeshPlane plane in mesh)
+        {
+            filters.Add(plane.filter);
+        }
+        Debug.Log("Combining " + filters.Count + " filters");
+        CombineInstance[] combine = new CombineInstance[filters.Count];
+        int i = 0;
+        while (i < filters.Count)
+        {
+            combine[i].mesh = filters[i].sharedMesh;
+            combine[i].transform = filters[i].transform.worldToLocalMatrix;
+            //filters[i].gameObject.SetActive(false);
+            i++;
+        }
+        filter = gameObject.GetComponent<MeshFilter>();
+        filter.mesh = new Mesh();
+        filter.mesh.CombineMeshes(combine);
+
+        MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
+        renderer.sharedMaterial = new Material(Shader.Find("Standard"));
+
+        transform.gameObject.SetActive(true);
+        combinedMesh = true;
+    }
+
+    void GenerateColliders()
+    {
+        MeshCollider collider = gameObject.AddComponent<MeshCollider>();
+        collider.sharedMesh = filter.mesh;
+    }
+
+    void Cleanup()
+    {
+        foreach (Transform child in transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        mesh.Clear();
     }
 }
