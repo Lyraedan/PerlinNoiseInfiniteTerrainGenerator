@@ -15,7 +15,7 @@ public class Chunk : MonoBehaviour
 
     public static int width = 10, length = 10;
 
-    private List<MeshPlane> mesh = new List<MeshPlane>();
+    [HideInInspector] public List<MeshPlane> mesh = new List<MeshPlane>();
 
     public float amplitude = 0.1f;
     [Header("Perlin Noise")]
@@ -31,10 +31,16 @@ public class Chunk : MonoBehaviour
 
     public float mod = 1f;
 
+    // Chunk bools
     private bool heightGenerated = false, builtTerrain = false, combinedMesh = false;
+
+    // Water bools
+    private bool generatedWaterMesh = false;
 
     private MeshFilter filter;
     private new MeshRenderer renderer;
+    private new MeshCollider collider;
+    private Water water;
 
     /// <summary>
     /// What is the XZ offset for this chunk?
@@ -57,6 +63,16 @@ public class Chunk : MonoBehaviour
         gameObject.name = World.instance.GetChunkKey(offsetX, offsetZ) + $" <{state}>";
         if (renderer)
             renderer.enabled = state;
+
+        if (water)
+            water.RenderWater(state);
+
+        if (collider)
+        {
+            collider.enabled = state;
+            // Uncertain
+            //collider.sharedMesh = null;
+        }
     }
 
     /// <summary>
@@ -84,7 +100,7 @@ public class Chunk : MonoBehaviour
                 plane.SetPosition(offsetX + (x * MeshPlane.tileSize.x), offsetZ + (z * MeshPlane.tileSize.z));
                 plane.Build();
                 plane.BuildMesh();
-                string key = $"Tile_{plane.x / width}_{plane.z / length}";
+                string key = $"Tile_{x}_{z}";
                 obj.name = key;
                 mesh.Add(plane);
             }
@@ -103,7 +119,7 @@ public class Chunk : MonoBehaviour
         for (int i = 0; i < mesh.Count; i++)
         {
             MeshPlane plane = mesh[i];
-            plane.ColourMesh();
+            //plane.ColourMesh();
             plane.BuildMesh();
 
             if (i >= mesh.Count - 1)
@@ -113,7 +129,26 @@ public class Chunk : MonoBehaviour
         CombineMeshes();
         yield return new WaitUntil(() => combinedMesh);
         GenerateColliders();
+        GenerateWater();
+        yield return new WaitUntil(() => generatedWaterMesh);
         Cleanup();
+        ColorMesh();
+    }
+
+    void ColorMesh()
+    {
+        renderer.sharedMaterial.color = Color.green;
+    }
+
+    public void GenerateWater()
+    {
+        GameObject waterObject = new GameObject("Water");
+        waterObject.transform.SetParent(transform);
+        this.water = waterObject.AddComponent<Water>();
+        water.SetChunk(this);
+        water.filter = waterObject.AddComponent<MeshFilter>();
+        water.GenerateWater();
+        generatedWaterMesh = true;
     }
 
     /// <summary>
@@ -133,18 +168,24 @@ public class Chunk : MonoBehaviour
                         float perlinX = plane.vertices[i].x + (x * MeshPlane.tileSize.x) / width * amplitude;
                         float perlinZ = plane.vertices[i].z + (z * MeshPlane.tileSize.z) / length * amplitude;
 
+                        #region OLD PERLIN
                         /*
                         float noise = (float)PerlinNoise.perlin(perlinX + World.instance.seed,
                                                                 plane.vertices[i].y + World.instance.seed,
                                                                 perlinZ + World.instance.seed);
                                                                 */
+                        /*
                         float noise = (float)PerlinNoise.OctavePerlin(perlinX + World.instance.seed,
-                                                      plane.vertices[i].y + World.instance.seed,
-                                                      perlinZ + World.instance.seed,
-                                                      octaves,
-                                                      persistance,
-                                                      frequancy,
-                                                      noiseAmplitude);
+                                      plane.vertices[i].y + World.instance.seed,
+                                      perlinZ + World.instance.seed,
+                                      octaves,
+                                      persistance,
+                                      frequancy,
+                                      noiseAmplitude);
+                                      */
+                        #endregion
+
+                        float noise = Mathf.PerlinNoise(perlinX + World.instance.offset.x, perlinZ + World.instance.offset.z) * 25f;
 
                         if (clampingEnabled)
                             plane.vertices[i].y = Mathf.Clamp(noise, clamp.x, clamp.y);
@@ -192,7 +233,7 @@ public class Chunk : MonoBehaviour
     /// </summary>
     void GenerateColliders()
     {
-        MeshCollider collider = gameObject.AddComponent<MeshCollider>();
+        collider = gameObject.AddComponent<MeshCollider>();
         collider.sharedMesh = filter.mesh;
     }
 
@@ -203,7 +244,8 @@ public class Chunk : MonoBehaviour
     {
         foreach (Transform child in transform)
         {
-            GameObject.Destroy(child.gameObject);
+            if(!child.GetComponent<Water>())
+                Destroy(child.gameObject);
         }
         mesh.Clear();
     }

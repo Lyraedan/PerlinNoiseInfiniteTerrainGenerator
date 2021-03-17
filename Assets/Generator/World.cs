@@ -14,7 +14,9 @@ public class World : MonoBehaviour
     public GameObject chunkPrefab;
     public Dictionary<string, Chunk> chunks = new Dictionary<string, Chunk>();
 
-    public float seed = 0;
+    public int seed = 0;
+
+    public Vector3 offset = Vector3.zero;
 
     private void Awake()
     {
@@ -28,6 +30,10 @@ public class World : MonoBehaviour
     {
         if (seed == 0)
             seed = Random.Range(-10000, 10000);
+
+        Random.InitState(seed);
+
+        offset = new Vector3(Random.Range(-10000, 10000), Random.Range(-10000, 10000), Random.Range(-10000, 10000));
     }
 
     /// <summary>
@@ -37,8 +43,10 @@ public class World : MonoBehaviour
     {
         foreach(Chunk chunk in chunks.Values)
         {
-            if(chunk.gameObject.activeSelf)
+            if (chunk.gameObject.activeSelf)
+            {
                 chunk.RenderChunk(false);
+            }
         }
     }
 

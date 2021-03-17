@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class MeshPlane : MonoBehaviour
 {
-    public float x, z;
+    public float x, y, z;
 
     public static Vector3 tileSize = new Vector3(10, 0, 10);
 
@@ -17,7 +18,7 @@ public class MeshPlane : MonoBehaviour
     public Vector2[] uv = new Vector2[4];
 
     private Mesh mesh;
-    private new MeshRenderer renderer;
+    [HideInInspector] public new MeshRenderer renderer;
     public MeshFilter filter;
 
     /// <summary>
@@ -25,9 +26,10 @@ public class MeshPlane : MonoBehaviour
     /// </summary>
     /// <param name="x"></param>
     /// <param name="z"></param>
-    public void SetPosition(float x, float z)
+    public void SetPosition(float x, float z, float y = 0)
     {
         this.x = x;
+        this.y = y;
         this.z = z;
     }
 
@@ -36,10 +38,10 @@ public class MeshPlane : MonoBehaviour
     /// </summary>
     public void Build()
     {
-        vertices[0] = new Vector3(x, 0, z);
-        vertices[1] = new Vector3(x + tileSize.x, 0, z);
-        vertices[2] = new Vector3(x, 0, z + tileSize.z);
-        vertices[3] = new Vector3(x + tileSize.x, 0, z + tileSize.z);
+        vertices[0] = new Vector3(x, y, z);
+        vertices[1] = new Vector3(x + tileSize.x, y, z);
+        vertices[2] = new Vector3(x, y, z + tileSize.z);
+        vertices[3] = new Vector3(x + tileSize.x, y, z + tileSize.z);
 
         indices = new int[6]
         {
@@ -63,10 +65,11 @@ public class MeshPlane : MonoBehaviour
             new Vector2(1, 1)
         };
     }
-    
+
     /// <summary>
     /// Colour our mesh based on its vertices height
     /// </summary>
+    [Obsolete]
     public void ColourMesh()
     {
         float v0 = Mathf.Lerp(vertices[0].x / Chunk.width, vertices[0].y, vertices[0].z / Chunk.length);
