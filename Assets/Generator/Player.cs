@@ -21,6 +21,9 @@ public class Player : MonoBehaviour
         lastPos = transform.position;
         World.instance.HideChunks();
         GenerateChunkIfWeNeedTo();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
     }
 
     /// <summary>
