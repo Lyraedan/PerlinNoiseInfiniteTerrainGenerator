@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+
+    Author: Zel
+ 
+*/
 public class World : MonoBehaviour
 {
 

@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+
+    Author: Zel 
+     
+*/
 public class Player : MonoBehaviour
 {
 
