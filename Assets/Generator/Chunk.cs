@@ -23,6 +23,8 @@ public class Chunk : MonoBehaviour
     public double persistance = 2; // 3
     public double frequancy = 1;
     public double noiseAmplitude = 1;
+    [Header("Noise clamping")]
+    public bool clampingEnabled = false;
     public Vector2 clamp = new Vector2(0, 10);
     [Space(5)]
     public float offsetX = 0, offsetZ = 0;
@@ -144,8 +146,10 @@ public class Chunk : MonoBehaviour
                                                       frequancy,
                                                       noiseAmplitude);
 
-                        plane.vertices[i].y = Mathf.Clamp(noise, clamp.x, clamp.y);
-                        Debug.Log("Noise: " + noise);
+                        if (clampingEnabled)
+                            plane.vertices[i].y = Mathf.Clamp(noise, clamp.x, clamp.y);
+                        else
+                            plane.vertices[i].y = noise;
                     }
                 }
             }
